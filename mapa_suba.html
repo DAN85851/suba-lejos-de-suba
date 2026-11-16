@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>¿Suba queda lejos de Suba?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: un mapa a escala a la izquierda con panel de detalle; abajo, secciones de análisis en una columna de lectura de 68ch con gráficos a todo el ancho del contenedor. */
+:root{
+  --bg:#f1f3f0; --paper:#ffffff; --ink:#15201b; --ink2:#48554f; --line:#d6dbd6; --grid:#e6eae6;
+  --accent:#b8322a;        /* troncal / Suba centro */
+  --teal:#1f6f78;          /* El Rincón */
+  --amber:#c9801a;         /* Tibabuyes */
+  --violet:#6b4fbb;        /* Niza / Bavaria */
+  --water:#cfe0e4; --suba:#e4e9df; --road:#b9c1bb; --troncal:#c8463d; --unal:#2d5a27;
+  --display:"Archivo",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13181a;--paper:#1b2224;--ink:#e8ece9;--ink2:#a8b2ad;--line:#2f3a3c;--grid:#263033;--accent:#e2645a;--teal:#4fb2bd;--amber:#e3a142;--violet:#a08ce6;--water:#1e3238;--suba:#223027;--road:#4a5856;--troncal:#e2645a;--unal:#6fbf63;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#13181a;--paper:#1b2224;--ink:#e8ece9;--ink2:#a8b2ad;--line:#2f3a3c;--grid:#263033;--accent:#e2645a;--teal:#4fb2bd;--amber:#e3a142;--violet:#a08ce6;--water:#1e3238;--suba:#223027;--road:#4a5856;--troncal:#e2645a;--unal:#6fbf63;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.1;margin:0}
+h1{font-size:clamp(34px,5vw,56px);font-weight:800;letter-spacing:-.01em}
+h2{font-size:clamp(22px,2.6vw,30px);font-weight:700;margin-top:56px;margin-bottom:12px}
+h3{font-size:17px;font-weight:700;margin-top:22px;margin-bottom:6px}
+p{max-width:68ch;margin:8px 0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.lede{font-size:18px;color:var(--ink2);max-width:62ch}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:26px}
+.tile{background:var(--paper);border:1px solid var(--line);padding:14px 16px;min-width:0}
+.tile .n{font-family:var(--display);font-size:38px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.tile .u{font-size:13px;color:var(--ink2);margin-top:6px}
+.tile .s{font-family:var(--mono);font-size:11px;color:var(--ink2);margin-top:8px}
+.maplayout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.8fr);gap:16px;margin-top:14px}
+@media (max-width:820px){.maplayout{grid-template-columns:1fr}}
+.mapbox{background:var(--paper);border:1px solid var(--line);position:relative;min-width:0}
+.mapbox svg{display:block;width:100%;height:auto;touch-action:none;cursor:grab}
+.mapbox svg:active{cursor:grabbing}
+.ctrl{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px}
+.ctrl button,.chip{font-family:var(--mono);font-size:13px;background:var(--paper);color:var(--ink);border:1px solid var(--line);width:32px;height:32px;cursor:pointer}
+.ctrl button:focus-visible,.chip:focus-visible,.row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.layers{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border-top:1px solid var(--line)}
+.chip{width:auto;height:auto;padding:5px 10px;border-radius:999px;font-size:12px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.panel{background:var(--paper);border:1px solid var(--line);padding:14px 16px;min-width:0;align-self:start}
+.panel h3{margin-top:0}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px;margin:10px 0}
+.kv dt{color:var(--ink2)}.kv dd{margin:0;font-variant-numeric:tabular-nums}
+.quote{border-left:3px solid var(--line);padding:4px 10px;margin:8px 0;color:var(--ink2);font-size:14px}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:13px;margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:12px;height:12px;border-radius:50%;display:inline-block;border:1.5px solid var(--paper);box-shadow:0 0 0 1px var(--line)}
+.sq{border-radius:2px}.tri{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid currentColor;border-radius:0;box-shadow:none;border-top:0}
+.chart{background:var(--paper);border:1px solid var(--line);padding:12px 14px 6px;margin-top:12px;min-width:0}
+.chart svg{display:block;width:100%;height:auto}
+.chart .cap{font-size:13px;color:var(--ink2);margin:6px 0 4px}
+.charts2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);font-weight:500}
+td.num,th.num{text-align:right}
+.tablewrap{overflow-x:auto;margin-top:10px;background:var(--paper);border:1px solid var(--line)}
+.rows{display:grid;gap:8px;margin-top:10px}
+.row{background:var(--paper);border:1px solid var(--line);padding:10px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:baseline;min-width:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.row b{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
+.row small{color:var(--ink2);display:block}
+.badge{font-family:var(--mono);font-size:11px;padding:2px 7px;border:1px solid var(--line);border-radius:3px;white-space:nowrap}
+.thesis{background:var(--paper);border-left:5px solid var(--accent);padding:16px 20px;margin-top:14px;max-width:76ch}
+.thesis p{max-width:none}
+ul{padding-left:20px;max-width:70ch}li{margin:4px 0}
+.src{font-size:13.5px;color:var(--ink2)}
+.src a{color:inherit}
+a{color:var(--accent)}
+.note{font-size:13px;color:var(--ink2)}
+.g-tib{color:var(--amber)}.g-rin{color:var(--teal)}.g-cen{color:var(--accent)}.g-niz{color:var(--violet)}
+@media (prefers-reduced-motion:no-preference){.mk{transition:r .15s}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Movilidad y Transporte · UNAL Bogotá · 17 respuestas, 2 al 9 de noviembre de 2026</div>
+  <h1>¿Suba queda lejos de Suba?</h1>
+  <p class="lede">Tiempo de viaje casa–UNAL de 17 estudiantes que viven en Suba. La pregunta no es cuánto dura el viaje, sino dónde se gasta: la mitad del tiempo, o más, se va antes de salir de la localidad.</p>
+  <div class="tiles">
+    <div class="tile"><div class="n">60<span style="font-size:18px"> min</span></div><div class="u">mediana de la ida en transporte público (rango 45–90)</div><div class="s">n = 12 · regreso: 60 min</div></div>
+    <div class="tile"><div class="n">56 %</div><div class="u">de la ida se gasta en salir de Suba (mediana); 6 de 12 superan el 50 % y uno más lo iguala</div><div class="s">Tibabuyes: 50–78 %</div></div>
+    <div class="tile"><div class="n">r = 0,07</div><div class="u">entre distancia al Portal y duración total: el viaje dura lo mismo viva donde viva</div><div class="s">vs. r = 0,71 con el % gastado dentro de Suba</div></div>
+    <div class="tile"><div class="n">+3.000<span style="font-size:18px"> $</span></div><div class="u">por trayecto cuando hay que pagar bicitaxi para llegar a la troncal (6.550 vs 3.550)</div><div class="s">+85 % sobre la tarifa</div></div>
+  </div>
+</header>
+
+<h2 id="mapa">El mapa: dónde viven, por dónde salen y dónde creen que termina Suba</h2>
+<p>Cada punto es un encuestado, ubicado por el barrio o punto de referencia que escribió (precisión de unas cuadras). La línea punteada es su tramo 1: de la casa al punto donde toma la troncal. Los rombos marcan dónde dice que <em>sale de Suba</em>; la línea gris es el límite administrativo real, la Calle 100. Toca un punto para ver su caso.</p>
+<div class="maplayout">
+  <div class="mapbox">
+    <svg id="map" viewBox="0 0 620 990" role="img" aria-label="Mapa a escala de Suba con los orígenes de los encuestados, el Portal Suba, la UNAL y los puntos donde perciben que salen de la localidad"></svg>
+    <div class="ctrl"><button id="zin" aria-label="Acercar">+</button><button id="zout" aria-label="Alejar">−</button><button id="zreset" aria-label="Restablecer vista">⌂</button></div>
+    <div class="layers" id="layers">
+      <button class="chip" data-layer="t1" aria-pressed="true">Tramo 1 (casa → troncal)</button>
+      <button class="chip" data-layer="exit" aria-pressed="true">Salida percibida</button>
+      <button class="chip" data-layer="limit" aria-pressed="true">Límite Calle 100</button>
+      <button class="chip" data-layer="troncal" aria-pressed="true">Troncal a la UNAL</button>
+      <button class="chip" data-layer="labels" aria-pressed="true">Nombres</button>
+    </div>
+  </div>
+  <aside class="panel" id="panel" aria-live="polite">
+    <h3>Leyenda</h3>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--amber)"></i>Tibabuyes</span>
+      <span><i class="sw" style="background:var(--teal)"></i>El Rincón</span>
+      <span><i class="sw" style="background:var(--accent)"></i>Suba centro</span>
+      <span><i class="sw" style="background:var(--violet)"></i>Niza / Bavaria</span>
+      <span><i class="sw" style="background:var(--ink2)"></i>Transporte público</span>
+      <span><i class="sw sq" style="background:var(--ink2)"></i>Moto</span>
+      <span><i class="tri" style="color:var(--ink2)"></i>&nbsp;Bicicleta</span>
+      <span><i class="sw sq" style="background:transparent;transform:rotate(45deg);border:1.5px solid var(--ink);box-shadow:none"></i>Salida percibida</span>
+    </div>
+    <p class="note" style="margin-top:12px">El tamaño del punto crece con el porcentaje de la ida gastado dentro de Suba. Mapa a escala geográfica (barra de 2 km abajo a la izquierda); el contorno de la localidad y las vías son aproximados, dibujados a partir de intersecciones conocidas.</p>
+    <p class="note">Toca un punto del mapa o una fila de la lista de abajo para ver el caso.</p>
+  </aside>
+</div>
+
+<h2>1. El tiempo total no depende de dónde vivas; el tiempo dentro de Suba, sí</h2>
+<p>Si Suba fuera "lejos" solo por distancia, los que viven más adentro tardarían más en llegar. No pasa: la ida en transporte público dura unos 60 minutos en todo el rango, desde quien vive al pie del Portal hasta quien vive en San Pedro de Tibabuyes. Lo que cambia es la composición del viaje. Los de la periferia occidental gastan 40 a 70 minutos antes de tocar la troncal y luego van rápido; los de la Av. Suba caminan 5 minutos y gastan todo su tiempo en el TransMilenio.</p>
+<div class="charts2">
+  <div class="chart"><div class="cap">Minutos hasta salir de Suba según la distancia en línea recta de la casa al Portal (transporte público, n = 12)</div><svg id="sc1" viewBox="0 0 520 300"></svg></div>
+  <div class="chart"><div class="cap">Minutos totales de la ida según la misma distancia: la nube es plana</div><svg id="sc2" viewBox="0 0 520 300"></svg></div>
+</div>
+<p class="note">Las correlaciones son descriptivas (12 casos). La distancia es en línea recta porque el mapa de la encuesta no permite trazar la ruta exacta; por vía suele ser un 30 % mayor.</p>
+
+<h2>2. Porcentaje de la ida gastado en salir de Suba, persona por persona</h2>
+<p>La hipótesis de la propuesta era que más del 50 % del viaje se va en salir de la localidad. En transporte público la mediana es 56 % y 8 de 12 superan el 50 % (uno más lo iguala). En Tibabuyes, tres de los cuatro están por encima de 60 % y el cuarto en 50 %. Quien vive al lado del Portal, 20 %.</p>
+<div class="chart"><svg id="bars" viewBox="0 0 760 560"></svg><div class="cap">Barras ordenadas; la línea vertical es el 50 %. Los casos en moto y bicicleta se muestran aparte porque el "punto de salida" no es una estación sino una vía.</div></div>
+
+<h2>3. Cuánto debería durar el viaje y cuánto dura</h2>
+<p>Con las velocidades comerciales oficiales se puede calcular el tiempo "en movimiento" de cada ruta: el tramo 1 a pie (4,5 km/h), en bicitaxi (12 km/h, supuesto) o en zonal y alimentador (16 km/h), y la troncal del Portal a la estación Universidad Nacional, 13,4 km a 26 km/h, unos 31 minutos. La diferencia entre ese cálculo y lo que la gente reporta es la fricción: esperar el alimentador, no poder subirse, el transbordo, la fila en el Portal.</p>
+<div class="chart"><svg id="teo" viewBox="0 0 760 520"></svg><div class="cap">Tiempo teórico en movimiento (gris) frente al tiempo reportado (color). La parte que sobresale es tiempo que no se explica por la distancia.</div></div>
+<div class="tablewrap"><table id="teotable"></table></div>
+<p>La fricción mediana es de 17 minutos por ida, pero se reparte de forma desigual: en Suba Salitre, San Pedro y Lisboa está entre 34 y 39 minutos; en Colina y San José de Bavaria es cero. Dicho de otro modo: la troncal cumple más o menos lo que promete; lo que no cumple es el acceso a ella. Un ejemplo con cifras: de Lisboa al Portal hay unos 4 km por vía. A 16 km/h son 15 minutos. Los dos encuestados de Lisboa reportan 40 y 55 minutos hasta la Calle 100, de los cuales la troncal explica unos 16; los otros 24 a 39 minutos se van en 4 kilómetros, es decir, entre 6 y 10 km/h, la velocidad de una bicicleta lenta.</p>
+
+<h2>4. Dónde "termina" Suba para cada quien</h2>
+<p>El límite administrativo sobre la Av. Suba es la Calle 100. Cinco personas lo señalan exactamente ahí. Las demás ubican la salida bastante más al sur o al oriente: San Martín, los túneles de Escuela Militar en la Calle 80, la Castellana con la 30, Titán Plaza. Para quien viaja, Suba no acaba donde dice el mapa sino donde el bus por fin corre. Esa Suba percibida es más grande que la real, y es la que pesa en el tiempo.</p>
+<div class="rows" id="exits"></div>
+
+<h2>5. Costo: la periferia paga el acceso</h2>
+<p>La tarifa 2026 es 3.550 pesos y el transbordo dentro de 125 minutos no cuesta. Nueve de doce pagan entre 3.500 y 3.600 por la ida, es decir, un pasaje. Tres pagan 6.000 a 6.550: dos explican que toman bicitaxi para llegar al alimentador o a la estación (Suba Salitre y San Pedro) y el tercero, en Los Naranjos, no detalla el motivo. La diferencia, 3.000 pesos, es el precio de vivir donde el sistema formal no llega. Al mes, con cinco días de clase, son unos 65.000 pesos adicionales por sentido, cerca de 129.000 si se paga de ida y de regreso.</p>
+<div class="tablewrap"><table id="costtable"></table></div>
+
+<h2>6. Las quejas apuntan al mismo lugar</h2>
+<p>Se pidió el punto de mayor congestión en la ida y en el regreso. Agrupando las 24 respuestas de transporte público:</p>
+<div class="charts2">
+  <div class="chart"><div class="cap">Ida: dónde está la mayor congestión</div><svg id="q1" viewBox="0 0 520 220"></svg></div>
+  <div class="chart"><div class="cap">Regreso</div><svg id="q2" viewBox="0 0 520 220"></svg></div>
+</div>
+<div id="quotes"></div>
+
+<h2>7. Horas de vida que se van en el trayecto</h2>
+<p>Multiplicando ida más vuelta por los días que cada quien va al campus, la mediana es 9,4 horas semanales en transporte, con un máximo de 19 horas (seis días a la semana desde San Pedro). Para ponerlo en escala: una materia de 3 créditos exige unas 9 horas semanales en total. El estudiante mediano de la muestra "cursa" una materia extra dentro de un bus.</p>
+<div class="chart"><svg id="hs" viewBox="0 0 760 440"></svg></div>
+
+<h2>8. Los que se bajaron del transporte público</h2>
+<p>Tres personas van en moto y dos en bicicleta, y una combina carro y TransMilenio según el pico y placa. Son pocos para promediar, pero dicen algo que la encuesta no preguntó:</p>
+<ul>
+  <li><b>Turingia, moto, 25 minutos.</b> "Me tocó comprarla porque en TransMilenio es hora y media." Es el viaje más corto de las 17 respuestas y nace del más largo.</li>
+  <li><b>Colina Campestre, moto, 45–50 minutos.</b> Sale con 1 h 20 de margen para una clase de 7.</li>
+  <li><b>Fontana, carro o TransMilenio.</b> 65 minutos en carro, 70 en TransMilenio. "He cogido a las 5 por la Cali y me he gastado 2 horas."</li>
+  <li><b>Suba Salitre y Zapatoca, bicicleta, 40 y 60 minutos.</b> Costo cero. Igualan o mejoran al transporte público desde el mismo sector.</li>
+</ul>
+
+<h2>9. La tesis que los datos sí sostienen</h2>
+<div class="thesis">
+  <p><b>Vivir adentro de Suba no te aleja de la UNAL en minutos; te cambia dónde los gastas.</b> En esta muestra la ida dura una hora casi para todos. Pero quien vive junto a la troncal usa esa hora en recorrer 13 km de TransMilenio, y quien vive en Tibabuyes la usa en recorrer 4 km de barrio a la velocidad de una caminata, y luego 13 km de troncal en lo que queda. El problema no es la distancia a la universidad sino la velocidad y la confiabilidad del primer tramo: el alimentador que no pasa, el que pasa lleno, el bicitaxi que hay que pagar aparte.</p>
+  <p>Tres cosas son comprobables sin importar el tamaño de la muestra: la troncal recorre Portal–UNAL en unos 31 minutos a su velocidad comercial publicada; el bicitaxi suma 3.000 pesos por trayecto donde no hay alimentador; y el límite percibido de Suba está, para la mayoría, al sur de la Calle 100. Lo que la muestra aporta es la magnitud: una mediana de 56 % del viaje dentro de la localidad y una fricción de 17 minutos por ida que se concentra en el occidente.</p>
+</div>
+<h3>Qué se puede afirmar y qué no</h3>
+<ul>
+  <li>Se puede afirmar el patrón: a más distancia de la troncal, mayor fracción del viaje dentro de Suba (r = 0,71) y mayor costo. Y que el tiempo total es plano respecto a esa distancia.</li>
+  <li>No se puede generalizar a "los estudiantes de Suba": 17 personas, reclutadas por redes, con 12 en transporte público. Es una radiografía de casos, no una estimación poblacional.</li>
+  <li>Los minutos son autorreportados y redondeados. Los de "salir de Suba" dependen de dónde cree cada quien que sale; por eso se muestra también ese punto.</li>
+  <li>Las coordenadas son aproximadas por barrio, y las distancias por vía se estiman con un factor 1,3 sobre la línea recta.</li>
+</ul>
+
+<h2>10. Método y fuentes</h2>
+<p><b>Instrumento.</b> Formulario anónimo con tres secciones: perfil, recorrido en transporte público y recorrido en otro vehículo; narración libre del trayecto más preguntas numéricas (minutos de ida, minutos hasta salir de Suba, costo, transbordos, congestión). Aplicado del 2 al 9 de noviembre de 2026.</p>
+<p><b>Limpieza.</b> Rangos de minutos al punto medio; ocho personas que marcaron "otra localidad" reclasificadas por barrio; costos de moto y bici tratados como texto. Los datos limpios y las reglas están en la hoja de cálculo del proyecto.</p>
+<p><b>Comparación con la ciudad.</b> La Encuesta de Movilidad 2023 da 48 minutos de viaje promedio en Bogotá (todos los modos, la mitad a pie). La Encuesta Bienal de Cultura Ciudadana 2025 da 1 h 15 min de la casa al destino frecuente y 66,9 % de viajes de más de una hora. Los 60 minutos de esta muestra están entre ambas referencias; lo distintivo no es la duración sino su reparto.</p>
+<ul class="src">
+  <li>TransMilenio S.A. (2024). <a href="https://www.transmilenio.gov.co/files/5aef6d25-4576-425e-af0f-4412b5e91d60/ad584b3a-5c4d-4bbc-89c7-0c2ba87d2704/Presentaci%C3%B3n%20Fase%20VI,%20la%20Nueva%20Era%20TRANSMILENIO%20S.A.2024.pdf">Fase VI, la nueva era</a>: velocidad comercial troncal 26 km/h, zonal 16 km/h.</li>
+  <li>El Tiempo (17-sep-2026). <a href="https://www.eltiempo.com/bogota/las-razones-por-las-que-la-alcaldia-objeto-la-subida-del-tiempo-de-transbordo-en-transmilenio-gerente-habla-de-golpe-financiero-y-competencias-3586935">Objeción al transbordo de 150 minutos</a>: velocidad del sistema 25 km/h en 2025; ventana vigente 125 min.</li>
+  <li>Alcaldía de Bogotá (ene-2026). <a href="https://bogota.gov.co/mi-ciudad/movilidad/tarifa-sitp-transmilenio-transmizonal-y-transmicable-bogota-2026">Tarifa 2026</a>: 3.550 pesos, transbordo sin costo.</li>
+  <li>Observatorio de Movilidad, SDM. <a href="https://observatorio.movilidadbogota.gov.co/indicadores-movilidad/velocidad-promedio-ponderada">Velocidad promedio ponderada</a> 23 km/h (2025) y <a href="https://observatorio.movilidadbogota.gov.co/indicadores-movilidad/tiempo-promedio-de">36,2 min por 10 km</a>.</li>
+  <li>Secretaría de Movilidad / Infobae (ene-2024). <a href="https://www.infobae.com/colombia/2024/01/06/asi-va-la-movilidad-en-bogota-ultima-encuesta-revelo-cambios-en-habitos-de-transporte-y-en-la-duracion-de-recorridos/">Encuesta de Movilidad 2023</a>: 48 min promedio.</li>
+  <li>Secretaría de Cultura / El Tiempo (may-2026). <a href="https://www.eltiempo.com/amp/bogota/bogotanos-cada-vez-mas-atrapados-en-trancones-encuesta-revela-que-los-tiempos-de-desplazamiento-aumentaron-3557830">Encuesta Bienal de Cultura Ciudadana 2025</a>: 1 h 15 min, 66,9 % más de una hora.</li>
+  <li>Secretaría de Salud, <a href="https://saludata.saludcapital.gov.co/osb/wp-content/uploads/2026/01/ACCVSYE_SUBA.pdf">Diagnóstico local de Suba</a>: 10,1 min de caminata al transporte público; sectores sin alimentador.</li>
+  <li>DANE (2018). <a href="https://www.dane.gov.co/files/investigaciones/condiciones_vida/pobrezatiempo/Bole_Pobreza_Tiempo_Ingreso_16_17.pdf">Pobreza de tiempo e ingreso</a>: método LIMTIP, que mide el déficit de tiempo de los hogares junto con el ingreso.</li>
+</ul>
+</div>
+
+<script id="data" type="application/json">[{"id": 1, "barrio": "Porta suba", "sector": "Suba centro (Portal)", "grupo": "Suba centro", "estrato": 3, "modo": "Transporte público", "dias": 5, "lat": 4.7462, "lon": -74.0952, "acceso": "Portal Suba", "alat": 4.7456, "alon": -74.0938, "dportal": 0.17, "dunal": 12.33, "dacc": 0.17, "ida": 50.0, "salir": 10.0, "pct": 20.0, "fuente": "público", "transb": 15.0, "costo": 3550.0, "costo_reg": 3550.0, "reg": 50.0, "hsem": 8.3, "costo_mes": 152650.0, "salida": "Calle 100", "slat": 4.6905, "slon": -74.0722, "narr": "Camí al portal. Tomo el TM hasta la estación de universidad nacional ", "cong": "Universidad nacional ", "cong_reg": "Universidad nacional ", "narr_reg": "Mismo recorrido de ida.", "otro": {"ida": 50.0, "salir": 30.0, "pct": 60.0, "reg": 120.0, "costo": "15000", "narr": "Salgo de campiña, tomo la av suba, la carrera 30 y entro por la portería de la 53"}, "teo": {"modo_t1": "pie", "transbordos": 0, "d_acc_ruta": 0.2, "d_troncal": 13.4, "t_t1": 3, "t_tr": 31, "teo": 34, "friccion": 16}, "notas": "Regreso en carro de 120 min: atípico, se conserva pero no entra en medianas de público"}, {"id": 2, "barrio": "Suba salitre saliendo por la salida para cota", "sector": "El Rincón / Suba Salitre", "grupo": "El Rincón", "estrato": 3, "modo": "Transporte público", "dias": 5, "lat": 4.744, "lon": -74.1005, "acceso": "Tv 91 - La Campiña", "alat": 4.7355, "alon": -74.084, "dportal": 0.76, "dunal": 12.19, "dacc": 2.06, "ida": 80.0, "salir": 30.0, "pct": 37.5, "fuente": "público", "transb": 17.5, "costo": 6550.0, "costo_reg": 3550.0, "reg": 60.0, "hsem": 11.7, "costo_mes": 217150.0, "salida": "San Martín", "slat": 4.6855, "slon": -74.069, "narr": "Tomo bicitaxi o sitp en suba salitre hasta la campiña o tv 91 de ahí me monto en Transmilenio y me bajo en la estación de universidad nacional ", "cong": "Generalmente cuando voy a tomar el sitp de ida por eso la mayoría de veces cojo bicitaxi ", "cong_reg": "Esperando el alimentador ", "narr_reg": "En ciudad universitaria o universidad nacional agarro cualquier bus para suba y me bajo en el portal de ahí cojo el alimentador 11-7 y me bajo en el hospital para después coger sitp hasta mi casa", "otro": null, "teo": {"modo_t1": "bicitaxi", "transbordos": 1, "d_acc_ruta": 2.7, "d_troncal": 12.1, "t_t1": 13, "t_tr": 28, "teo": 41, "friccion": 39}, "notas": "Marcó 'Otra localidad' aunque el barrio está en Suba; reclasificado por barrio"}, {"id": 3, "barrio": "El Poa", "sector": "Eje Av. Suba (El Poa)", "grupo": "Suba centro", "estrato": 2, "modo": "Transporte público", "dias": 5, "lat": 4.7372, "lon": -74.0872, "acceso": "La Campiña", "alat": 4.7378, "alon": -74.0853, "dportal": 1.19, "dunal": 11.24, "dacc": 0.22, "ida": 45.0, "salir": 30.0, "pct": 66.7, "fuente": "público", "transb": 13.0, "costo": 3550.0, "costo_reg": 3550.0, "reg": 42.5, "hsem": 7.3, "costo_mes": 152650.0, "salida": "Calle 100 con Suba", "slat": 4.6905, "slon": -74.0722, "narr": "Salgo de mi conjunto, camino 3-7 minutos hasta llegar a la estación y me bajo en la estación Universidad Nacional", "cong": "Después de la estación de la calle 116", "cong_reg": "Entre las estaciones de puente largo y la calle 116", "narr_reg": "Camino 5-10 minutos dependiendo de la hora, entro a la estación, me monto en el bus, llego a la estación la campiña y camino 5-7 minutos hasta llegar a mi casa", "otro": null, "teo": {"modo_t1": "pie", "transbordos": 0, "d_acc_ruta": 0.3, "d_troncal": 12.1, "t_t1": 4, "t_tr": 28, "teo": 32, "friccion": 13}, "notas": null}, {"id": 4, "barrio": "san pedro de suba", "sector": "Tibabuyes (San Pedro)", "grupo": "Tibabuyes", "estrato": 2, "modo": "Transporte público", "dias": 6, "lat": 4.734, "lon": -74.1275, "acceso": "Portal Suba", "alat": 4.7456, "alon": -74.0938, "dportal": 3.95, "dunal": 12.09, "dacc": 3.95, "ida": 90.0, "salir": 70.0, "pct": 77.8, "fuente": "público", "transb": 15.0, "costo": 6500.0, "costo_reg": 6500.0, "reg": 100.0, "hsem": 19.0, "costo_mes": 335400.0, "salida": "Túneles de Escuela Militar (Cl 80)", "slat": 4.6757, "slon": -74.074, "narr": "actualmente me toca tomar un bicitaxi hasta la calle 132 D hay cojo el alimentador 11-9 lisboa hasta el portal de hay el g30 o h17 a la unal", "cong": "en la salida de lisboa al ser una calle de solo ida si ocurre un accidente se genera un embotellamiento descomunal de horas", "cong_reg": "portal imposible a esa hora cojer alimentador ", "narr_reg": "g30 o h17 hasta el portal luego 11-9 hasta lisboa y de ahy bicitaxi", "otro": null, "teo": {"modo_t1": "bicitaxi+alimentador", "transbordos": 2, "d_acc_ruta": 5.1, "d_troncal": 13.4, "t_t1": 21, "t_tr": 31, "teo": 51, "friccion": 39}, "notas": null}, {"id": 5, "barrio": "Centro comercial plaza imperial", "sector": "El Rincón (Plaza Imperial)", "grupo": "El Rincón", "estrato": 3, "modo": "Transporte público", "dias": 5, "lat": 4.7482, "lon": -74.1, "acceso": "Portal Suba", "alat": 4.7456, "alon": -74.0938, "dportal": 0.75, "dunal": 12.64, "dacc": 0.75, "ida": 60.0, "salir": 15.0, "pct": 25.0, "fuente": "público", "transb": 5.0, "costo": 3550.0, "costo_reg": 3550.0, "reg": 65.0, "hsem": 10.4, "costo_mes": 152650.0, "salida": "CC Niza (Bulevar Niza, Cl 127)", "slat": 4.7103, "slon": -74.0683, "narr": "Salgo desde cerca del centro comercial plaza imperial y voy hasta el portal de suba caminando, ahí tomo Transmilenio directo hasta la entrada de la calle 45", "cong": "Entre el centro comercial Niza y la estación San Martín ", "cong_reg": "Desde san Martin hasta el centro comercial Niza ", "narr_reg": "Salgo desde la entrada de la calle 45 hacia la estación universidad nacional y de ahí tomo un Transmilenio directo a el portal de Suba", "otro": null, "teo": {"modo_t1": "pie", "transbordos": 0, "d_acc_ruta": 1.0, "d_troncal": 13.4, "t_t1": 13, "t_tr": 31, "teo": 44, "friccion": 16}, "notas": "Marcó 'Otra localidad' aunque el barrio está en Suba; reclasificado por barrio"}, {"id": 6, "barrio": "San Cipriano", "sector": "San José de Bavaria (San Cipriano)", "grupo": "Niza / Bavaria", "estrato": 3, "modo": "Transporte público", "dias": 6, "lat": 4.751, "lon": -74.053, "acceso": "Toberín (Autonorte)", "alat": 4.7445, "alon": -74.0465, "dportal": 4.56, "dunal": 13.08, "dacc": 1.02, "ida": 45.0, "salir": 30.0, "pct": 66.7, "fuente": "público", "transb": 15.0, "costo": 3600.0, "costo_reg": 3600.0, "reg": 50.0, "hsem": 9.5, "costo_mes": 185760.0, "salida": "La Castellana con Cra 30", "slat": 4.6845, "slon": -74.0592, "narr": "Salgo de mi casa hasta la estación del Transmilenio de Toberin, y de ahí voy hasta la estación de Universidad Nacional. Finalmente entro por la entrada de la 45. ", "cong": "Esperando el bus", "cong_reg": "Esperando el bus", "narr_reg": "Salgo para la estación de la 45, Universidad Nacional, y me voy hasta la estación de Toberin. Finalmente, me bajo y camino de regreso hasta la casa. ", "otro": {"ida": 80.0, "salir": 45.0, "pct": 56.2, "reg": 85.0, "costo": "0", "narr": "Me voy por toda la carrera 54 hasta la 129, ahí salgo para la autopista y me voy por la misma hasta la 30, desde allá me voy hasta la entrada de la 53. "}, "teo": {"modo_t1": "pie", "transbordos": 0, "d_acc_ruta": 1.3, "d_troncal": 12.8, "t_t1": 18, "t_tr": 30, "teo": 47, "friccion": -2}, "notas": "Costo 0 en carro: no reportó combustible"}, {"id": 7, "barrio": "Colina", "sector": "Niza (Colina Campestre)", "grupo": "Niza / Bavaria", "estrato": 4, "modo": "Moto", "dias": 5, "lat": 4.7262, "lon": -74.0592, "acceso": null, "alat": null, "alon": null, "dportal": 4.4, "dunal": 10.24, "dacc": null, "ida": 47.5, "salir": 30.0, "pct": 63.2, "fuente": "Moto", "transb": null, "costo": null, "costo_reg": null, "reg": 60.0, "hsem": 9.0, "costo_mes": null, "salida": "Titán Plaza / estación Virrey", "slat": 4.6946, "slon": -74.0863, "narr": "Voy en moto y para clase de 7 tengo que salir con 1h y 20 para irme tranquilo y poder desayunar en la uni ", "cong": null, "cong_reg": null, "narr_reg": "Me voy parchado en la moto y me demoro 1H", "otro": null, "teo": null, "notas": "Costo moto en texto libre, no numérico; Marcó 'Otra localidad' aunque el barrio está en Suba; reclasificado por barrio"}, {"id": 8, "barrio": "Clínica la Colina", "sector": "Niza (Cl 163 con Boyacá)", "grupo": "Niza / Bavaria", "estrato": 3, "modo": "Transporte público", "dias": 4, "lat": 4.744, "lon": -74.064, "acceso": "Portal Suba", "alat": 4.7456, "alon": -74.0938, "dportal": 3.31, "dunal": 12.09, "dacc": 3.31, "ida": 45.0, "salir": 20.0, "pct": 44.4, "fuente": "público", "transb": 15.0, "costo": 3500.0, "costo_reg": 3500.0, "reg": 45.0, "hsem": 6.0, "costo_mes": 120400.0, "salida": "Estación Calle 100", "slat": 4.6905, "slon": -74.0722, "narr": "Salgo de la 163 con boyaca hasta portal tomo transmilenio y me bajo en la universidad nacional y ahí entro por la portería de la calle 45", "cong": "Transmilenio ", "cong_reg": "Transmilenio ", "narr_reg": "Salgo de la universidad por la 45 tomo transmilenio, llego al portal y tomo alimentador ", "otro": null, "teo": {"modo_t1": "zonal", "transbordos": 1, "d_acc_ruta": 4.3, "d_troncal": 13.4, "t_t1": 16, "t_tr": 31, "teo": 47, "friccion": -2}, "notas": "Marcó 'Otra localidad' aunque el barrio está en Suba; reclasificado por barrio"}, {"id": 9, "barrio": "La conejera", "sector": "Suba centro (La Conejera)", "grupo": "Suba centro", "estrato": 2, "modo": "Moto", "dias": 5, "lat": 4.758, "lon": -74.098, "acceso": null, "alat": null, "alon": null, "dportal": 1.46, "dunal": 13.68, "dacc": null, "ida": 50.0, "salir": 20.0, "pct": 40.0, "fuente": "Moto", "transb": null, "costo": null, "costo_reg": null, "reg": 30.0, "hsem": 6.7, "costo_mes": null, "salida": "Avenida Boyacá", "slat": 4.751, "slon": -74.063, "narr": "Suelo subir la conejera para coger la avenida Boyacá. Continúo derecho para coger la calle 68 mandarme por el Simón Bolívar y termino entrando por la entrada de la 53", "cong": null, "cong_reg": null, "narr_reg": "Para la salida, salgo por la 53 de la UNAL YAIR SUBO EL PUENTE, DOY LA VUELTA Y ME VOY POR TODA EL AUTO NORTE HASTA QUE LLEGO A TURÍN DE AHÍ COJO EL PUENTE DOY LA OREJA para que me mande a la calle 170 subo la conejera o volteo a la izquierda para coger y voltear a mi casa", "otro": null, "teo": null, "notas": "Costo moto en texto libre, no numérico; Marcó 'Otra localidad' aunque el barrio está en Suba; reclasificado por barrio"}, {"id": 10, "barrio": "Naranjos conjunto palma uno", "sector": "El Rincón (Los Naranjos)", "grupo": "El Rincón", "estrato": 3, "modo": "Transporte público", "dias": 4, "lat": 4.73, "lon": -74.0922, "acceso": "Tv 91", "alat": 4.7332, "alon": -74.0822, "dportal": 1.74, "dunal": 10.5, "dacc": 1.16, "ida": 60.0, "salir": 40.0, "pct": 66.7, "fuente": "público", "transb": 17.5, "costo": 6000.0, "costo_reg": 3500.0, "reg": 75.0, "hsem": 9.0, "costo_mes": 163400.0, "salida": "Av. Ciudad de Cali / Chapinero", "slat": 4.704, "slon": -74.1075, "narr": "Salgo de la casa. Si voy con tiempo espero un sitp que me lleve a la av suba, estación transversal 91, si voy de afan y no pasa un sitp al que me pueda subir porque en hora pico van llenos, camino 15 min aprx hasta la estación, tomo transmilenio hasta la estacion de la nacional y entro por la 30 al campus", "cong": "Desde que salgo de la casa sitp lleno y transmilenio tambien", "cong_reg": "Desde que salgo de la casa", "narr_reg": "Tomo algo en la 30 me deja en la cali y tomo sitp hasta la casa, suba", "otro": null, "teo": {"modo_t1": "zonal", "transbordos": 1, "d_acc_ruta": 1.5, "d_troncal": 11.5, "t_t1": 6, "t_tr": 27, "teo": 32, "friccion": 28}, "notas": "Marcó 'Otra localidad' aunque el barrio está en Suba; reclasificado por barrio"}, {"id": 11, "barrio": "Fontana, cerca a Plaza imperial", "sector": "El Rincón (Fontana)", "grupo": "El Rincón", "estrato": 3, "modo": "Combinado (público + carro)", "dias": 5, "lat": 4.7505, "lon": -74.1015, "acceso": "Portal Suba", "alat": 4.7456, "alon": -74.0938, "dportal": 1.01, "dunal": 12.92, "dacc": 1.01, "ida": 70.0, "salir": 30.0, "pct": 42.9, "fuente": "público", "transb": 20.0, "costo": 3550.0, "costo_reg": 3550.0, "reg": 80.0, "hsem": 12.5, "costo_mes": 152650.0, "salida": "San Martín (TM) / Cafam Floresta–Cali con 80 (carro)", "slat": 4.6855, "slon": -74.069, "narr": "En trasmi: salgo a pie hasta el paradero del alimentador las Mercedes cerca al cc imperial, depende la hora tomo el G30, o el H17, o el L25 (este hago trasbordo en campin) y me bajo en la estación de universidad nacional por la NQS para entrar por la 45, sin importar donde sea mi clase prefiero caminar por la universidad (no voy por la 26).\n\n", "cong": "El semaforo antes de entrar al portal, o el cruce en escuela militar", "cong_reg": "En la estación, hay mucha gente", "narr_reg": " En trasmi cojo lo mismo pero me bajo en el portal suba y camino a mi casa.\n\n", "otro": {"ida": 65.0, "salir": 30.0, "pct": 46.2, "reg": 80.0, "costo": "2000 de gasolina", "narr": " En carro: salgo a pie hasta el parqueadero frente del imperial, dependiendo (también ocasionalmente hago wheels) cojo la cali hasta la 72 y luego la 63 para llegar por la portería de la 53, o cali hasta la 26 y luego 50 para entrar por la portería de la  calle 44. O por la suba hasta la 68 y nuevamente cojer por los lados de la virgilio a llegar a la portería de la 53 o 44."}, "teo": {"modo_t1": "alimentador", "transbordos": 1, "d_acc_ruta": 1.3, "d_troncal": 13.4, "t_t1": 5, "t_tr": 31, "teo": 36, "friccion": 34}, "notas": "Marcó 'Otra localidad' aunque el barrio está en Suba; reclasificado por barrio"}, {"id": 12, "barrio": "Suba turingia, al lado del hospital de suba", "sector": "Suba centro (Turingia)", "grupo": "Suba centro", "estrato": 3, "modo": "Moto", "dias": 4, "lat": 4.747, "lon": -74.104, "acceso": null, "alat": null, "alon": null, "dportal": 1.14, "dunal": 12.59, "dacc": null, "ida": 25.0, "salir": 10.0, "pct": 40.0, "fuente": "Moto", "transb": null, "costo": null, "costo_reg": null, "reg": 40.0, "hsem": 4.3, "costo_mes": null, "salida": "Puente de la 80 hacia la 72", "slat": 4.704, "slon": -74.1075, "narr": "Salgo de turingia en moto (me tocó comprarla porque en transmilenio es hora y media) tomo la av, ciudad de Cali, luego por la 72 hasta la portería de la 45 ", "cong": null, "cong_reg": null, "narr_reg": "Salgo por la portería del Uriel hacia la av, el dorado, me desvío hacia la av ciudad de Cali y llego a suba turingia ", "otro": null, "teo": null, "notas": "Costo moto en texto libre, no numérico"}, {"id": 13, "barrio": "Lisboa", "sector": "Tibabuyes (Lisboa)", "grupo": "Tibabuyes", "estrato": 2, "modo": "Transporte público", "dias": 4, "lat": 4.74, "lon": -74.1215, "acceso": "Portal Suba", "alat": 4.7456, "alon": -74.0938, "dportal": 3.13, "dunal": 12.42, "dacc": 3.13, "ida": 85.0, "salir": 55.0, "pct": 64.7, "fuente": "público", "transb": 15.0, "costo": 3550.0, "costo_reg": 3550.0, "reg": 90.0, "hsem": 11.7, "costo_mes": 122120.0, "salida": "CC Iserra 100", "slat": 4.6905, "slon": -74.0722, "narr": "Salgo caminando de Lisboa hacia la Toscana, allí hay una parada en donde puedo tomar sitp 599 aunque se demora en pasar y también se demora más el recorrido por lo que usualmente tomo alimentador de La Gaitana, hasta portal Suba. Allí Transmilenio hasta la estación Universidad Nacional e ingreso por la calle 45.", "cong": "En tomar el alimentador para llegar al portal", "cong_reg": "Esperando el alimentador Lisboa (hora pico)", "narr_reg": "Siempre uso transmilenio de vuelta a Suba y allí el alimentador de Lisboa hasta llegar al barrio Berlín, allí camino aproximadamente 8 minutos hasta la casa", "otro": null, "teo": {"modo_t1": "alimentador", "transbordos": 1, "d_acc_ruta": 4.1, "d_troncal": 13.4, "t_t1": 15, "t_tr": 31, "teo": 46, "friccion": 39}, "notas": null}, {"id": 14, "barrio": "Lisboa", "sector": "Tibabuyes (Lisboa)", "grupo": "Tibabuyes", "estrato": 2, "modo": "Transporte público", "dias": 1, "lat": 4.7385, "lon": -74.121, "acceso": "Portal Suba", "alat": 4.7456, "alon": -74.0938, "dportal": 3.12, "dunal": 12.25, "dacc": 3.12, "ida": 65.0, "salir": 40.0, "pct": 61.5, "fuente": "público", "transb": 20.0, "costo": 3500.0, "costo_reg": 3500.0, "reg": 50.0, "hsem": 1.9, "costo_mes": 30100.0, "salida": "Calle 100 con Av. Suba", "slat": 4.6905, "slon": -74.0722, "narr": "Salgo de Lisboa en alimentador, la ruta 11-9 Lisboa, pasa más cerca sin embargo va más llena y menos posibilidades tengo de entrar, por tanto camino para irme en la ruta 11-8 Gaitana, y en el portal Suba tomo el H17 para llegar a la UNAL por la portería de la 30 ", "cong": "En el barrio, para entrar al alimentador", "cong_reg": "en el portal, esperando el alimentador ", "narr_reg": "El mismo recorrido de ida", "otro": null, "teo": {"modo_t1": "alimentador", "transbordos": 1, "d_acc_ruta": 4.1, "d_troncal": 13.4, "t_t1": 15, "t_tr": 31, "teo": 46, "friccion": 19}, "notas": "Ida 'entre 50 y 1 h 20': punto medio 65 min; Transbordo regreso descartado: escribió el tiempo total del viaje (65 min)"}, {"id": 15, "barrio": "Pinos de Lombardía", "sector": "Tibabuyes (Pinos de Lombardía)", "grupo": "Tibabuyes", "estrato": 3, "modo": "Transporte público", "dias": 5, "lat": 4.745, "lon": -74.119, "acceso": "Portal Suba", "alat": 4.7456, "alon": -74.0938, "dportal": 2.79, "dunal": 12.84, "dacc": 2.79, "ida": 50.0, "salir": 25.0, "pct": 50.0, "fuente": "público", "transb": 5.0, "costo": 3550.0, "costo_reg": 3550.0, "reg": 60.0, "hsem": 9.2, "costo_mes": 152650.0, "salida": "Calle 80", "slat": 4.6735, "slon": -74.0675, "narr": "Alimentador 11-7 desde la última parada hasta portal y Transmilenio G30 ", "cong": "El portal cuando está lleno", "cong_reg": "Esperando el alimentador ", "narr_reg": "Mismo pero al revés ", "otro": null, "teo": {"modo_t1": "alimentador", "transbordos": 1, "d_acc_ruta": 3.6, "d_troncal": 13.4, "t_t1": 14, "t_tr": 31, "teo": 45, "friccion": 5}, "notas": null}, {"id": 16, "barrio": "Zapatoca Suba", "sector": "El Rincón (Zapatoca, Av. Cali)", "grupo": "El Rincón", "estrato": 3, "modo": "Bicicleta", "dias": 4, "lat": 4.7435, "lon": -74.1065, "acceso": null, "alat": null, "alon": null, "dportal": 1.43, "dunal": 12.28, "dacc": null, "ida": 60.0, "salir": 25.0, "pct": 41.7, "fuente": "Bicicleta", "transb": null, "costo": null, "costo_reg": null, "reg": 60.0, "hsem": 8.0, "costo_mes": null, "salida": "Titán Plaza", "slat": 4.6946, "slon": -74.0863, "narr": "Salgo de mi casa al lado del Zapatoca Suba, derecho por la Cali hasta el caño de la 80, voy por esa hasta llegar a Titan Plaza sobre la Boyacá, cruzo el semáforo y voy paralelo al Arzobispo hasta el puente de la 68,lo cruzo y luego me meto por el barrio San Fernando hasta desembocar justo en la integración de la estación de Av Chile en la 30 y de ahí recto pedaleo hasta la U, entrando por la portería del Acevedo Tejada", "cong": null, "cong_reg": null, "narr_reg": "De regreso desde la UN costado oriental derecho hasta el puente de la Mezquita, bajo al lado de Escuela Militar luego tomo otra vez el mismo camino de ida pero de regreso como fue descrito desde el puente de la 68 ", "otro": null, "teo": null, "notas": null}, {"id": 17, "barrio": "Suba salitre", "sector": "El Rincón / Suba Salitre", "grupo": "El Rincón", "estrato": 3, "modo": "Bicicleta", "dias": 5, "lat": 4.7445, "lon": -74.0998, "acceso": null, "alat": null, "alon": null, "dportal": 0.68, "dunal": 12.23, "dacc": null, "ida": 40.0, "salir": 20.0, "pct": 50.0, "fuente": "Bicicleta", "transb": null, "costo": null, "costo_reg": null, "reg": 45.0, "hsem": 7.1, "costo_mes": null, "salida": "Bulevar Niza", "slat": 4.7103, "slon": -74.0683, "narr": "Bici, Suba salitre carrera 91 hasta la principal avenida suba, tomo la suba hacia el sur hasta la calle 80 ahí tomo la carera 30 y llego a la U", "cong": null, "cong_reg": null, "narr_reg": "Igual que el de ida pero al revés ", "otro": null, "teo": null, "notas": "Marcó 'Otra localidad' aunque el barrio está en Suba; reclasificado por barrio"}]</script>
+<script>
+(function(){
+const D = JSON.parse(document.getElementById('data').textContent);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const GC = {'Tibabuyes':'--amber','El Rincón':'--teal','Suba centro':'--accent','Niza / Bavaria':'--violet'};
+const col = r => `var(${GC[r.grupo]})`;
+const fmt = (v,d=0) => v==null?'—':Number(v).toLocaleString('es-CO',{maximumFractionDigits:d,minimumFractionDigits:d});
+const pub = D.filter(r=>r.fuente==='público');
+const NOM={1:'Portal Suba',2:'Suba Salitre',3:'El Poa',4:'San Pedro (Tibabuyes)',5:'Plaza Imperial',6:'San Cipriano',7:'Colina Campestre',8:'Cl 163 con Boyacá',9:'La Conejera',10:'Los Naranjos',11:'Fontana',12:'Turingia',13:'Lisboa',14:'Lisboa',15:'Pinos de Lombardía',16:'Zapatoca (Av. Cali)',17:'Suba Salitre'};
+D.forEach(r=>r.nom=NOM[r.id]||r.barrio);
+
+/* ---------- MAPA ---------- */
+const LAT0=4.800, LON0=-74.145, S=5657; // px por grado
+const px = (lat,lon)=>[(lon-LON0)*Math.cos(4.7*Math.PI/180)*S, (LAT0-lat)*S];
+const P = pts => pts.map(p=>px(p[0],p[1]).map(v=>v.toFixed(1)).join(',')).join(' ');
+const map = document.getElementById('map');
+const NS='http://www.w3.org/2000/svg';
+const el=(t,a={},parent)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(parent)parent.appendChild(e);return e};
+const g = el('g',{id:'view'},map);
+// agua / río Bogotá y contorno aproximado de Suba
+const suba=[[4.6855,-74.0570],[4.6900,-74.0720],[4.6920,-74.0790],[4.6990,-74.0880],[4.7050,-74.1000],[4.7100,-74.1100],[4.7170,-74.1200],[4.7230,-74.1330],[4.7400,-74.1380],[4.7600,-74.1300],[4.7800,-74.1200],[4.7950,-74.1050],[4.7990,-74.0900],[4.7990,-74.0700],[4.7990,-74.0430],[4.7470,-74.0455],[4.7055,-74.0530]];
+el('polygon',{points:P(suba),fill:'var(--suba)',stroke:'var(--road)','stroke-width':1,'stroke-dasharray':'4 3'},g);
+el('polyline',{points:P([[4.7230,-74.1330],[4.7400,-74.1380],[4.7600,-74.1300],[4.7800,-74.1200],[4.7950,-74.1050]]),fill:'none',stroke:'var(--water)','stroke-width':6,'stroke-linecap':'round'},g);
+// vías
+const roads=[
+ {n:'Autopista Norte',p:[[4.6700,-74.0600],[4.6855,-74.0570],[4.7055,-74.0530],[4.7470,-74.0455],[4.7990,-74.0430]]},
+ {n:'Av. Boyacá',p:[[4.6600,-74.0990],[4.6947,-74.0866],[4.7150,-74.0770],[4.7320,-74.0700],[4.7510,-74.0630]]},
+ {n:'Av. Ciudad de Cali',p:[[4.6700,-74.1120],[4.7040,-74.1075],[4.7250,-74.1070],[4.7435,-74.1055],[4.7560,-74.1035]]},
+ {n:'Calle 80',p:[[4.6735,-74.0675],[4.6947,-74.0866],[4.7040,-74.1075],[4.7117,-74.1218]]},
+ {n:'Calle 100',p:[[4.6855,-74.0570],[4.6900,-74.0720],[4.6930,-74.0800]]},
+ {n:'Calle 170',p:[[4.7470,-74.0455],[4.7510,-74.0630],[4.7565,-74.0820],[4.7580,-74.0950]]},
+ {n:'Cra 30 (NQS)',p:[[4.6735,-74.0675],[4.6630,-74.0710],[4.6540,-74.0745],[4.6465,-74.0770],[4.6364,-74.0795],[4.6280,-74.0815]]},
+ {n:'Av. Suba',p:[[4.7560,-74.1035],[4.7456,-74.0938],[4.7378,-74.0853],[4.7332,-74.0822],[4.7260,-74.0770],[4.7175,-74.0725],[4.7108,-74.0690],[4.7010,-74.0712],[4.6960,-74.0720],[4.6900,-74.0720],[4.6865,-74.0700],[4.6790,-74.0680],[4.6735,-74.0675]]},
+ {n:'Calle 132 / Lisboa',p:[[4.7340,-74.1275],[4.7395,-74.1140],[4.7430,-74.1040],[4.7456,-74.0938]]},
+];
+const gRoads=el('g',{id:'roads'},g);
+roads.forEach(r=>el('polyline',{points:P(r.p),fill:'none',stroke:'var(--road)','stroke-width':r.n==='Calle 132 / Lisboa'?1.5:2.5,'stroke-linejoin':'round'},gRoads));
+// troncal Suba + NQS
+const tron=[[4.7456,-74.0938],[4.7378,-74.0853],[4.7332,-74.0822],[4.7260,-74.0770],[4.7175,-74.0725],[4.7108,-74.0690],[4.7010,-74.0712],[4.6960,-74.0720],[4.6900,-74.0720],[4.6865,-74.0700],[4.6790,-74.0680],[4.6735,-74.0675],[4.6630,-74.0710],[4.6540,-74.0745],[4.6465,-74.0770],[4.6364,-74.0795]];
+const gTron=el('g',{id:'l-troncal'},g);
+el('polyline',{points:P(tron),fill:'none',stroke:'var(--troncal)','stroke-width':3.5,'stroke-linejoin':'round',opacity:.9},gTron);
+el('polyline',{points:P([[4.7445,-74.0465],[4.7055,-74.0530],[4.6855,-74.0570],[4.6845,-74.0592],[4.6735,-74.0675]]),fill:'none',stroke:'var(--troncal)','stroke-width':2.5,'stroke-dasharray':'6 4',opacity:.7},gTron);
+// límite calle 100
+const gLim=el('g',{id:'l-limit'},g);
+el('polyline',{points:P([[4.6855,-74.0570],[4.6900,-74.0720],[4.6920,-74.0790],[4.6990,-74.0880],[4.7050,-74.1000]]),fill:'none',stroke:'var(--ink)','stroke-width':2,'stroke-dasharray':'2 4'},gLim);
+// tramo 1
+const gT1=el('g',{id:'l-t1'},g);
+D.forEach(r=>{ if(r.alat){ el('line',{x1:px(r.lat,r.lon)[0],y1:px(r.lat,r.lon)[1],x2:px(r.alat,r.alon)[0],y2:px(r.alat,r.alon)[1],stroke:col(r),'stroke-width':1.6,'stroke-dasharray':'3 3',opacity:.85,'data-id':r.id},gT1);} });
+// salidas percibidas
+const gEx=el('g',{id:'l-exit'},g);
+D.forEach(r=>{ const [x,y]=px(r.slat,r.slon); const [ox,oy]=px(r.lat,r.lon);
+  el('line',{x1:ox,y1:oy,x2:x,y2:y,stroke:col(r),'stroke-width':.6,opacity:.18,'data-id':r.id},gEx);
+  el('rect',{x:x-5,y:y-5,width:10,height:10,transform:`rotate(45 ${x} ${y})`,fill:'var(--paper)',stroke:col(r),'stroke-width':1.6,'data-id':r.id,class:'ex'},gEx);
+});
+// hitos
+const gLab=el('g',{id:'l-labels','font-family':'var(--mono)','font-size':'11px',fill:'var(--ink2)'},g);
+const label=(lat,lon,t,dx=6,dy=4,w)=>{const [x,y]=px(lat,lon);const e=el('text',{x:x+dx,y:y+dy,'font-weight':w?'600':'400',fill:w?'var(--ink)':'var(--ink2)'},gLab);e.textContent=t;};
+const spot=(lat,lon,color)=>{const [x,y]=px(lat,lon);el('circle',{cx:x,cy:y,r:5.5,fill:color,stroke:'var(--paper)','stroke-width':2},g);};
+spot(4.7456,-74.0938,'var(--troncal)'); label(4.7456,-74.0938,'Portal Suba',8,-6,1);
+spot(4.6364,-74.0795,'var(--unal)'); label(4.6364,-74.0795,'UNAL · est. Universidad Nacional',8,4,1);
+spot(4.7445,-74.0465,'var(--troncal)'); label(4.7445,-74.0465,'Toberín',-50,-6);
+label(4.6900,-74.0720,'Calle 100 (límite)',8,-6);
+label(4.6735,-74.0675,'Cl 80 · Escuela Militar',8,12);
+label(4.6790,-74.0680,'San Martín',8,2);
+label(4.7108,-74.0690,'Niza Cl 127',8,2);
+label(4.7332,-74.0822,'Tv 91',8,12);
+label(4.6947,-74.0866,'Titán Plaza',-62,14);
+label(4.7900,-74.0450,'Autopista Norte',-80,-4);
+label(4.7250,-74.1070,'Av. Ciudad de Cali',-98,0);
+label(4.7700,-74.1240,'Río Bogotá',-20,0);
+label(4.7175,-74.0725,'Av. Suba',10,4);
+label(4.7300,-74.1300,'Tibabuyes',-6,16);
+label(4.7900,-74.0800,'SUBA (contorno aprox.)',-50,0);
+label(4.6560,-74.0745,'Cra 30 / NQS',8,0);
+// escala: 2 km
+{const k=S/111.2;const x0=20,y0=960;el('line',{x1:x0,x2:x0+2*k,y1:y0,y2:y0,stroke:'var(--ink)','stroke-width':2},g);el('line',{x1:x0,x2:x0,y1:y0-5,y2:y0+5,stroke:'var(--ink)','stroke-width':2},g);el('line',{x1:x0+2*k,x2:x0+2*k,y1:y0-5,y2:y0+5,stroke:'var(--ink)','stroke-width':2},g);const t=el('text',{x:x0+k,y:y0-9,'text-anchor':'middle','font-family':'var(--mono)','font-size':'11px',fill:'var(--ink)'},g);t.textContent='2 km';}
+// puntos
+const gPts=el('g',{id:'pts'},g);
+const shape=(r,x,y,s)=>{
+  if(r.modo==='Moto') return el('rect',{x:x-s,y:y-s,width:2*s,height:2*s,fill:col(r),stroke:'var(--paper)','stroke-width':1.5,'data-id':r.id,class:'mk',tabindex:0,role:'button','aria-label':`Encuestado ${r.id}, ${r.barrio}`},gPts);
+  if(r.modo==='Bicicleta') return el('polygon',{points:`${x},${y-s*1.2} ${x-s*1.1},${y+s*.8} ${x+s*1.1},${y+s*.8}`,fill:col(r),stroke:'var(--paper)','stroke-width':1.5,'data-id':r.id,class:'mk',tabindex:0,role:'button','aria-label':`Encuestado ${r.id}, ${r.barrio}`},gPts);
+  return el('circle',{cx:x,cy:y,r:s,fill:col(r),stroke:'var(--paper)','stroke-width':1.5,'data-id':r.id,class:'mk',tabindex:0,role:'button','aria-label':`Encuestado ${r.id}, ${r.barrio}`},gPts);
+};
+// separar puntos muy cercanos
+const used=[]; D.forEach(r=>{ let [x,y]=px(r.lat,r.lon); for(const u of used){ if(Math.hypot(u[0]-x,u[1]-y)<12){ x+=10; y-=8; } } used.push([x,y]); r._x=x; r._y=y;
+  const s=4+ (r.pct||30)/12; shape(r,x,y,s); const t=el('text',{x:x+s+2,y:y+3.5,'font-family':'var(--mono)','font-size':'9px',fill:'var(--ink2)','data-id':r.id},gPts); t.textContent=r.id; });
+
+// pan / zoom
+let vb={x:0,y:0,w:620,h:990}; const base={...vb};
+const apply=()=>map.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+const zoom=(f,cx,cy)=>{ const nx=cx-(cx-vb.x)*f, ny=cy-(cy-vb.y)*f; vb={x:nx,y:ny,w:vb.w*f,h:vb.h*f}; apply(); };
+document.getElementById('zin').onclick=()=>zoom(.75,vb.x+vb.w/2,vb.y+vb.h/2);
+document.getElementById('zout').onclick=()=>zoom(1.333,vb.x+vb.w/2,vb.y+vb.h/2);
+document.getElementById('zreset').onclick=()=>{vb={...base};apply();};
+let drag=null;
+const toSvg=(e)=>{const pt=map.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(map.getScreenCTM().inverse());};
+map.addEventListener('pointerdown',e=>{drag={p:toSvg(e),v:{...vb}};map.setPointerCapture(e.pointerId);});
+map.addEventListener('pointermove',e=>{if(!drag)return;const p=toSvg(e);vb.x=drag.v.x-(p.x-drag.p.x)*(vb.w/drag.v.w)*0+ (drag.v.x-(p.x-drag.p.x)) - drag.v.x + drag.v.x; vb.x=drag.v.x-(p.x-drag.p.x); vb.y=drag.v.y-(p.y-drag.p.y); apply();});
+map.addEventListener('pointerup',()=>drag=null); map.addEventListener('pointercancel',()=>drag=null);
+map.addEventListener('wheel',e=>{e.preventDefault();const p=toSvg(e);zoom(e.deltaY>0?1.15:0.87,p.x,p.y);},{passive:false});
+// capas
+document.getElementById('layers').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);document.getElementById('l-'+b.dataset.layer).style.display=on?'':'none';});
+
+/* ---------- PANEL ---------- */
+const panel=document.getElementById('panel'); const panelHome=panel.innerHTML;
+function show(id){
+  const r=D.find(d=>d.id==id); if(!r)return;
+  document.querySelectorAll('.mk').forEach(m=>m.setAttribute('stroke-width',m.dataset.id==id?3:1.5));
+  const o=r.otro; const t=r.teo;
+  panel.innerHTML=`<div class="eyebrow">Encuestado ${r.id} · ${r.grupo} · estrato ${r.estrato}</div><h3 style="margin-top:4px">${r.barrio}</h3>
+  <dl class="kv">
+   <dt>Modo</dt><dd>${r.modo}</dd>
+   <dt>Días al campus</dt><dd>${r.dias} por semana</dd>
+   <dt>Ida</dt><dd>${fmt(r.ida)} min${r.fuente!=='público'?' ('+r.modo.toLowerCase()+')':''}</dd>
+   <dt>Hasta salir de Suba</dt><dd>${fmt(r.salir)} min · <b>${fmt(r.pct)} %</b> de la ida</dd>
+   <dt>Dice que sale en</dt><dd>${r.salida}</dd>
+   <dt>Regreso</dt><dd>${fmt(r.reg)} min</dd>
+   ${r.transb!=null?`<dt>Transbordo</dt><dd>${fmt(r.transb)} min cada uno</dd>`:''}
+   ${r.costo!=null?`<dt>Costo ida</dt><dd>$ ${fmt(r.costo)}</dd>`:''}
+   <dt>Al Portal (recta)</dt><dd>${fmt(r.dportal,1)} km · a la UNAL ${fmt(r.dunal,1)} km</dd>
+   ${t?`<dt>Teórico en movimiento</dt><dd>${t.teo} min (${t.t_t1} tramo 1 + ${t.t_tr} troncal) · fricción ${t.friccion>=0?'+':''}${t.friccion} min</dd>`:''}
+   <dt>Horas/semana</dt><dd>${fmt(r.hsem,1)} h</dd>
+  </dl>
+  ${r.narr?`<div class="quote">«${r.narr}»</div>`:''}
+  ${r.cong?`<p class="note"><b>Congestión ida:</b> ${r.cong}${r.cong_reg?` · <b>regreso:</b> ${r.cong_reg}`:''}</p>`:''}
+  ${o?`<p class="note"><b>También en otro medio:</b> ${fmt(o.ida)} min de ida, ${fmt(o.salir)} min para salir de Suba (${fmt(o.pct)} %). ${o.costo?'Costo: '+o.costo+'.':''}</p>${o.narr?`<div class="quote">«${o.narr}»</div>`:''}`:''}
+  ${r.notas?`<p class="note">Nota de limpieza: ${r.notas}</p>`:''}
+  <button class="chip" id="back" type="button">← Leyenda</button>`;
+  document.getElementById('back').onclick=()=>{panel.innerHTML=panelHome;document.querySelectorAll('.mk').forEach(m=>m.setAttribute('stroke-width',1.5));};
+}
+map.addEventListener('click',e=>{const t=e.target.closest('[data-id]');if(t)show(t.dataset.id);});
+map.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.dataset.id){e.preventDefault();show(e.target.dataset.id);}});
+
+/* ---------- GRÁFICOS ---------- */
+function axes(svg,W,H,m,xs,ys,xl,yl,xt,yt){
+  const g=el('g',{'font-family':'var(--mono)','font-size':'11px',fill:'var(--ink2)'},svg);
+  yt.forEach(v=>{const y=ys(v);el('line',{x1:m.l,x2:W-m.r,y1:y,y2:y,stroke:'var(--grid)'},g);const t=el('text',{x:m.l-6,y:y+4,'text-anchor':'end'},g);t.textContent=v;});
+  xt.forEach(v=>{const x=xs(v);el('line',{x1:x,x2:x,y1:H-m.b,y2:H-m.b+4,stroke:'var(--ink2)'},g);const t=el('text',{x:x,y:H-m.b+16,'text-anchor':'middle'},g);t.textContent=String(v).replace('.',',');});
+  el('line',{x1:m.l,x2:W-m.r,y1:H-m.b,y2:H-m.b,stroke:'var(--ink2)'},g);
+  let t=el('text',{x:(m.l+W-m.r)/2,y:H-4,'text-anchor':'middle'},g);t.textContent=xl;
+  t=el('text',{x:12,y:m.t-6,'text-anchor':'start',fill:'var(--ink2)'},g);t.textContent=yl;
+}
+function scatter(id,key,yl,ymax){
+  const svg=document.getElementById(id),W=520,H=300,m={l:44,r:14,t:22,b:38};
+  const xs=v=>m.l+(v/5)*(W-m.l-m.r), ys=v=>H-m.b-(v/ymax)*(H-m.t-m.b);
+  axes(svg,W,H,m,xs,ys,'km en línea recta de la casa al Portal Suba',yl,[0,1,2,3,4,5],[0,20,40,60,80,100].filter(v=>v<=ymax));
+  // tendencia (mínimos cuadrados)
+  const xs_=pub.map(r=>r.dportal),ys_=pub.map(r=>r[key]);const n=xs_.length,mx=xs_.reduce((a,b)=>a+b)/n,my=ys_.reduce((a,b)=>a+b)/n;
+  const b=xs_.reduce((a,x,i)=>a+(x-mx)*(ys_[i]-my),0)/xs_.reduce((a,x)=>a+(x-mx)**2,0),a=my-b*mx;
+  el('line',{x1:xs(0),y1:ys(a),x2:xs(5),y2:ys(a+5*b),stroke:'var(--ink2)','stroke-dasharray':'4 4'},svg);
+  pub.forEach(r=>{el('circle',{cx:xs(r.dportal),cy:ys(r[key]),r:6,fill:col(r),stroke:'var(--paper)','stroke-width':1.5},svg);const t=el('text',{x:xs(r.dportal)+8,y:ys(r[key])+4,'font-family':'var(--mono)','font-size':'10px',fill:'var(--ink2)'},svg);t.textContent=r.id;});
+}
+scatter('sc1','salir','minutos hasta salir de Suba',80);
+scatter('sc2','ida','minutos totales de la ida',100);
+
+// barras % tramo 1
+(function(){
+  const svg=document.getElementById('bars'),W=760,m={l:250,r:60,t:10,b:30};
+  const rowsP=[...pub].sort((a,b)=>b.pct-a.pct), rowsO=D.filter(r=>r.fuente!=='público').sort((a,b)=>b.pct-a.pct);
+  const all=[...rowsP,{sep:true},...rowsO]; const rh=28; const H=m.t+all.length*rh+m.b; svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const xs=v=>m.l+(v/100)*(W-m.l-m.r);
+  const g=el('g',{'font-family':'var(--body)','font-size':'12.5px'},svg);
+  [0,25,50,75,100].forEach(v=>{el('line',{x1:xs(v),x2:xs(v),y1:m.t,y2:H-m.b,stroke:v===50?'var(--ink)':'var(--grid)','stroke-width':v===50?1.5:1,'stroke-dasharray':v===50?'3 3':''},g);const t=el('text',{x:xs(v),y:H-10,'text-anchor':'middle','font-family':'var(--mono)','font-size':'11px',fill:'var(--ink2)'},g);t.textContent=v+' %';});
+  all.forEach((r,i)=>{const y=m.t+i*rh;
+    if(r.sep){const t=el('text',{x:m.l,y:y+18,'font-family':'var(--mono)','font-size':'11px',fill:'var(--ink2)'},g);t.textContent='MOTO Y BICICLETA (punto de salida = vía, no estación)';return;}
+    el('rect',{x:xs(0),y:y+5,width:xs(r.pct)-xs(0),height:rh-10,fill:col(r),opacity:r.fuente==='público'?.95:.6},g);
+    let t=el('text',{x:m.l-8,y:y+rh/2+4,'text-anchor':'end',fill:'var(--ink)'},g);t.textContent=`${r.id} · ${r.nom}`;
+    t=el('text',{x:xs(r.pct)+6,y:y+rh/2+4,'font-family':'var(--mono)','font-size':'11.5px',fill:'var(--ink)'},g);t.textContent=`${fmt(r.pct)} %  (${fmt(r.salir)}/${fmt(r.ida)} min)`;
+  });
+})();
+
+// teórico vs real
+(function(){
+  const svg=document.getElementById('teo'),W=760,m={l:230,r:70,t:10,b:30};
+  const rows=[...pub].filter(r=>r.teo).sort((a,b)=>(b.ida-b.teo.teo)-(a.ida-a.teo.teo)); const rh=36; const H=m.t+rows.length*rh+m.b; svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const xs=v=>m.l+(v/100)*(W-m.l-m.r); const g=el('g',{'font-family':'var(--body)','font-size':'12.5px'},svg);
+  [0,20,40,60,80,100].forEach(v=>{el('line',{x1:xs(v),x2:xs(v),y1:m.t,y2:H-m.b,stroke:'var(--grid)'},g);const t=el('text',{x:xs(v),y:H-10,'text-anchor':'middle','font-family':'var(--mono)','font-size':'11px',fill:'var(--ink2)'},g);t.textContent=v;});
+  rows.forEach((r,i)=>{const y=m.t+i*rh;
+    el('rect',{x:xs(0),y:y+4,width:xs(r.ida)-xs(0),height:rh-14,fill:col(r),opacity:.9},g);
+    el('rect',{x:xs(0),y:y+4,width:xs(r.teo.teo)-xs(0),height:rh-14,fill:'var(--ink2)',opacity:.55},g);
+    el('line',{x1:xs(r.teo.t_t1),x2:xs(r.teo.t_t1),y1:y+4,y2:y+rh-10,stroke:'var(--paper)','stroke-width':1.5},g);
+    let t=el('text',{x:m.l-8,y:y+rh/2+2,'text-anchor':'end',fill:'var(--ink)'},g);t.textContent=`${r.id} · ${r.nom}`;
+    t=el('text',{x:xs(r.ida)+6,y:y+rh/2+2,'font-family':'var(--mono)','font-size':'11.5px',fill:'var(--ink)'},g);t.textContent=`${r.teo.friccion>=0?'+':''}${r.teo.friccion} min`;
+  });
+  const tb=document.getElementById('teotable');
+  tb.innerHTML=`<thead><tr><th>#</th><th>Barrio</th><th>Tramo 1</th><th class="num">km por vía (est.)</th><th class="num">min tramo 1</th><th class="num">km troncal</th><th class="num">min troncal</th><th class="num">Teórico</th><th class="num">Reportado</th><th class="num">Fricción</th></tr></thead><tbody>`+
+   rows.map(r=>`<tr><td>${r.id}</td><td>${r.nom}</td><td>${r.teo.modo_t1}${r.teo.transbordos?` · ${r.teo.transbordos} transb.`:''}</td><td class="num">${fmt(r.teo.d_acc_ruta,1)}</td><td class="num">${r.teo.t_t1}</td><td class="num">${fmt(r.teo.d_troncal,1)}</td><td class="num">${r.teo.t_tr}</td><td class="num">${r.teo.teo}</td><td class="num"><b>${fmt(r.ida)}</b></td><td class="num">${r.teo.friccion>=0?'+':''}${r.teo.friccion}</td></tr>`).join('')+
+   `</tbody><tfoot><tr><td colspan="7">Mediana (n = 12)</td><td class="num">44,5</td><td class="num"><b>60</b></td><td class="num">+17,5</td></tr></tfoot>`;
+})();
+
+// salidas percibidas
+(function(){
+  const box=document.getElementById('exits');
+  const groups={};
+  D.forEach(r=>{const k=r.salida.split(' / ')[0].replace(/\s*\(.*\)$/,'');(groups[k]=groups[k]||[]).push(r);});
+  const order=Object.entries(groups).sort((a,b)=>b[1].length-a[1].length);
+  box.innerHTML=order.map(([k,rs])=>`<button class="row" type="button" data-ids="${rs.map(r=>r.id).join(',')}"><b>${rs.length}</b><span>${k}<small>${rs.map(r=>`${r.id} ${r.nom}`).join(' · ')}</small></span><span class="badge">${/Calle 100|Iserra/.test(k)?'= límite oficial':'más allá del límite'}</span></button>`).join('');
+  box.addEventListener('click',e=>{const b=e.target.closest('.row');if(!b)return;const id=b.dataset.ids.split(',')[0];show(id);document.getElementById('mapa').scrollIntoView({behavior:'smooth'});});
+})();
+
+// costos
+(function(){
+  const tb=document.getElementById('costtable');
+  const rows=[...pub].sort((a,b)=>(b.costo||0)-(a.costo||0));
+  tb.innerHTML=`<thead><tr><th>#</th><th>Barrio</th><th>Cómo llega a la troncal</th><th class="num">Ida ($)</th><th class="num">Regreso ($)</th><th class="num">Días/sem</th><th class="num">Mes est. ($)</th></tr></thead><tbody>`+
+   rows.map(r=>`<tr><td>${r.id}</td><td>${r.nom}</td><td>${r.teo?r.teo.modo_t1:'—'}</td><td class="num">${fmt(r.costo)}</td><td class="num">${fmt(r.costo_reg)}</td><td class="num">${r.dias}</td><td class="num">${fmt(r.costo_mes)}</td></tr>`).join('')+`</tbody>`;
+})();
+
+// quejas
+(function(){
+  const cat=(s)=>{ if(!s) return null; s=s.toLowerCase();
+    if(/alimentador|sitp|bicitaxi|barrio|lisboa|portal|esperando el bus|paradero/.test(s)) return 'Alimentador / SITP / Portal (esperar, no poder subir)';
+    if(/116|niza|san martin|san martín|transmilenio|estaci|puente largo/.test(s)) return 'Troncal TransMilenio (lleno, lento)';
+    if(/semaforo|semáforo|escuela militar|cali|casa/.test(s)) return 'Vías de acceso / semáforos';
+    if(/universidad|nacional/.test(s)) return 'Llegada a la UNAL';
+    return 'Otro'; };
+  const count=(key)=>{const c={};pub.forEach(r=>{const k=cat(r[key]);if(k)c[k]=(c[k]||0)+1;});return Object.entries(c).sort((a,b)=>b[1]-a[1]);};
+  const draw=(id,data)=>{const svg=document.getElementById(id),W=520,m={l:10,r:40,t:6,b:6};const rh=40;const H=m.t+data.length*rh+m.b;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    const max=Math.max(...data.map(d=>d[1]));const xs=v=>m.l+(v/max)*(W-m.l-m.r-120);
+    data.forEach((d,i)=>{const y=m.t+i*rh;el('rect',{x:m.l,y:y+18,width:xs(d[1])-m.l,height:12,fill:'var(--accent)',opacity:.85},svg);
+      let t=el('text',{x:m.l,y:y+12,'font-family':'var(--body)','font-size':'12.5px',fill:'var(--ink)'},svg);t.textContent=d[0];
+      t=el('text',{x:xs(d[1])+6,y:y+29,'font-family':'var(--mono)','font-size':'12px',fill:'var(--ink)'},svg);t.textContent=`${d[1]} de ${pub.length}`;});};
+  draw('q1',count('cong')); draw('q2',count('cong_reg'));
+  const qs=[[4,'en la salida de Lisboa, al ser una calle de solo ida, si ocurre un accidente se genera un embotellamiento descomunal de horas'],[14,'la ruta 11-9 Lisboa pasa más cerca, sin embargo va más llena y menos posibilidades tengo de entrar, por tanto camino para irme en la 11-8 Gaitana'],[10,'si voy de afán y no pasa un SITP al que me pueda subir, porque en hora pico van llenos, camino 15 min hasta la estación'],[2,'generalmente cuando voy a tomar el SITP de ida, por eso la mayoría de veces cojo bicitaxi'],[12,'me tocó comprar la moto porque en TransMilenio es hora y media']];
+  document.getElementById('quotes').innerHTML=qs.map(q=>`<div class="quote">«${q[1]}» <span class="badge">#${q[0]}</span></div>`).join('');
+})();
+
+// horas/semana
+(function(){
+  const svg=document.getElementById('hs'),W=760,m={l:230,r:60,t:10,b:30};
+  const rows=[...D].sort((a,b)=>b.hsem-a.hsem);const rh=24;const H=m.t+rows.length*rh+m.b;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const xs=v=>m.l+(v/20)*(W-m.l-m.r);const g=el('g',{'font-family':'var(--body)','font-size':'12px'},svg);
+  [0,5,10,15,20].forEach(v=>{el('line',{x1:xs(v),x2:xs(v),y1:m.t,y2:H-m.b,stroke:v===9?'var(--ink)':'var(--grid)'},g);const t=el('text',{x:xs(v),y:H-10,'text-anchor':'middle','font-family':'var(--mono)','font-size':'11px',fill:'var(--ink2)'},g);t.textContent=v+' h';});
+  el('line',{x1:xs(9),x2:xs(9),y1:m.t,y2:H-m.b,stroke:'var(--ink)','stroke-dasharray':'3 3'},g);
+  let t=el('text',{x:xs(9)+4,y:m.t+10,'font-family':'var(--mono)','font-size':'10.5px',fill:'var(--ink2)'},g);t.textContent='≈ una materia de 3 créditos (9 h/sem)';
+  rows.forEach((r,i)=>{const y=m.t+i*rh;el('rect',{x:xs(0),y:y+4,width:xs(r.hsem)-xs(0),height:rh-8,fill:col(r),opacity:r.fuente==='público'?.95:.55},g);
+    let t=el('text',{x:m.l-8,y:y+rh/2+4,'text-anchor':'end',fill:'var(--ink)'},g);t.textContent=`${r.id} · ${r.nom} · ${r.dias} d`;
+    t=el('text',{x:xs(r.hsem)+5,y:y+rh/2+4,'font-family':'var(--mono)','font-size':'11px',fill:'var(--ink)'},g);t.textContent=fmt(r.hsem,1)+' h';});
+})();
+})();
+</script>
+
+</body>
+</html>
